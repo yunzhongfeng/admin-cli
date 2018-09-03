@@ -1,102 +1,73 @@
 <template>
   <div class="login">
-    <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
-      <el-form-item label="活动名称" prop="name">
-        <el-input v-model="ruleForm.name"></el-input>
-      </el-form-item>
-      <el-form-item label="活动区域" prop="region">
-        <el-select v-model="ruleForm.region" placeholder="请选择活动区域">
-          <el-option label="区域一" value="shanghai"></el-option>
-          <el-option label="区域二" value="beijing"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="活动时间" required>
-        <el-col :span="11">
-          <el-form-item prop="date1">
-            <el-date-picker type="date" placeholder="选择日期" v-model="ruleForm.date1" style="width: 100%;"></el-date-picker>
-          </el-form-item>
-        </el-col>
-        <el-col class="line" :span="2">-</el-col>
-        <el-col :span="11">
-          <el-form-item prop="date2">
-            <el-time-picker type="fixed-time" placeholder="选择时间" v-model="ruleForm.date2" style="width: 100%;"></el-time-picker>
-          </el-form-item>
-        </el-col>
-      </el-form-item>
-      <el-form-item label="即时配送" prop="delivery">
-        <el-switch v-model="ruleForm.delivery"></el-switch>
-      </el-form-item>
-      <el-form-item label="活动性质" prop="type">
-        <el-checkbox-group v-model="ruleForm.type">
-          <el-checkbox label="美食/餐厅线上活动" name="type"></el-checkbox>
-          <el-checkbox label="地推活动" name="type"></el-checkbox>
-          <el-checkbox label="线下主题活动" name="type"></el-checkbox>
-          <el-checkbox label="单纯品牌曝光" name="type"></el-checkbox>
-        </el-checkbox-group>
-      </el-form-item>
-      <el-form-item label="特殊资源" prop="resource">
-        <el-radio-group v-model="ruleForm.resource">
-          <el-radio label="线上品牌商赞助"></el-radio>
-          <el-radio label="线下场地免费"></el-radio>
-        </el-radio-group>
-      </el-form-item>
-      <el-form-item label="活动形式" prop="desc">
-        <el-input type="textarea" v-model="ruleForm.desc"></el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="submitForm('ruleForm')">立即创建</el-button>
-        <el-button @click="resetForm('ruleForm')">重置</el-button>
-      </el-form-item>
-    </el-form>
+    <div class="container">
+      <el-form :model="loginForm" :rules="rules" ref="loginform" class="demo-ruleForm">
+        <img src="../assets/502.jpg" alt="" class="avatar">
+        <el-form-item prop="username">
+          <el-input v-model="loginForm.username" placeholder="用户名" prefix-icon="myicon myicon-user"></el-input>
+        </el-form-item>
+        <el-form-item prop="password">
+          <el-input type='password' v-model="loginForm.password"  placeholder="密码" prefix-icon="myicon myicon-key"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="submitForm('loginform')" class="login-btn">立即登录</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
   </div>
 </template>
 <script>
+import { login } from '@/api/index.js'
 export default {
   data () {
     return {
-      ruleForm: {
-        name: '',
-        region: '',
-        date1: '',
-        date2: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: ''
+      loginForm: {
+        username: '',
+        password: ''
       },
       rules: {
-        name: [
-          { required: true, message: '请输入活动名称', trigger: 'blur' },
-          { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+        username: [
+          { required: true, message: '请输入用户名', trigger: 'blur' }
         ],
-        region: [
-          { required: true, message: '请选择活动区域', trigger: 'change' }
-        ],
-        date1: [
-          { type: 'date', required: true, message: '请选择日期', trigger: 'change' }
-        ],
-        date2: [
-          { type: 'date', required: true, message: '请选择时间', trigger: 'change' }
-        ],
-        type: [
-          { type: 'array', required: true, message: '请至少选择一个活动性质', trigger: 'change' }
-        ],
-        resource: [
-          { required: true, message: '请选择活动资源', trigger: 'change' }
-        ],
-        desc: [
-          { required: true, message: '请填写活动形式', trigger: 'blur' }
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur' }
         ]
+
       }
     }
   },
   methods: {
     submitForm (formName) {
-      this.$refs[formName].validate((valid) => {
+      console.log(this.$refs[formName])
+      this.$refs[formName].validate(valid => {
         if (valid) {
-          alert('submit!')
+          login(this.loginForm).then(res => {
+            // console.log(res)
+            if (res.meta.status === 200) {
+              // 成功提示
+              this.$message({
+                duration: 1500,
+                message: res.meta.msg,
+                type: 'success'
+              })
+              // 进行路由跳转
+              this.$router.push({name: 'Home'})
+            } else {
+              // 错误提示
+              this.$message({
+                showClose: true,
+                message: res.meta.msg,
+                type: 'error'
+              })
+            }
+          })
         } else {
-          console.log('error submit!!')
+          // 错误提示
+          this.$message({
+            showClose: true,
+            message: '请输入之后再提交',
+            type: 'error'
+          })
           return false
         }
       })
@@ -107,6 +78,38 @@ export default {
   }
 }
 </script>
-<style lang="sass" scoped>
+<style lang="scss" scoped>
+    .login {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: #2f4050;
+    // background-color: #f5f5d5;
 
+    .container {
+      position: absolute;
+      left: 0;
+      right: 0;
+      width: 400px;
+      padding: 0px 40px 15px 40px;
+      margin: 200px auto;
+      background: white;
+      .avatar {
+        position: relative;
+        left: 50%;
+        width: 120px;
+        height: 120px;
+        margin-left: -60px;
+        margin-top: -60px;
+        box-sizing: border-box;
+        border-radius: 50%;
+        border: 10px solid #fff;
+        box-shadow: 0 1px 5px #ccc;
+        overflow: hidden;
+      }
+      .login-btn {
+        width: 100%;
+      }
+    }
+}
 </style>
