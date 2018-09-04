@@ -4,10 +4,10 @@
       <el-form :model="loginForm" :rules="rules" ref="loginform" class="demo-ruleForm">
         <img src="../assets/502.jpg" alt="" class="avatar">
         <el-form-item prop="username">
-          <el-input v-model="loginForm.username" placeholder="用户名" prefix-icon="myicon myicon-user"></el-input>
+          <el-input v-model="loginForm.username" placeholder="用户名"  prefix-icon="myicon myicon-user"></el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input type='password' v-model="loginForm.password"  placeholder="密码" prefix-icon="myicon myicon-key"></el-input>
+          <el-input type='password' v-model="loginForm.password" placeholder="密码" prefix-icon="myicon myicon-key"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="submitForm('loginform')" class="login-btn">立即登录</el-button>
@@ -22,8 +22,8 @@ export default {
   data () {
     return {
       loginForm: {
-        username: '',
-        password: ''
+        username: 'admin',
+        password: '123456'
       },
       rules: {
         username: [
@@ -32,24 +32,28 @@ export default {
         password: [
           { required: true, message: '请输入密码', trigger: 'blur' }
         ]
-
       }
     }
   },
   methods: {
     submitForm (formName) {
-      console.log(this.$refs[formName])
+      // console.log(this.$refs[formName])
       this.$refs[formName].validate(valid => {
         if (valid) {
           login(this.loginForm).then(res => {
-            // console.log(res)
+            console.log(res)
             if (res.meta.status === 200) {
               // 成功提示
               this.$message({
-                duration: 1500,
+                duration: 1000,
                 message: res.meta.msg,
                 type: 'success'
               })
+              // 将当前的用户名存储到Store中
+              // debugger
+              // this.$store.dispatch('setusernameAction', res.data.username)
+              // 将token值存储起来：使用localStorage
+              localStorage.setItem('mytoken', res.data.token)
               // 进行路由跳转
               this.$router.push({name: 'Home'})
             } else {
@@ -83,7 +87,8 @@ export default {
     position: fixed;
     width: 100%;
     height: 100%;
-    background-color: #2f4050;
+    background: url('../assets/0111.png') no-repeat center left;
+    // background-color: #2f4050;
     // background-color: #f5f5d5;
 
     .container {
