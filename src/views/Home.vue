@@ -3,7 +3,7 @@
     <el-container>
       <el-aside width="auto">
         <h1 class="logo"></h1>
-        <el-menu default-active="1-1" class="el-menu-admin" @open="handleOpen"
+        <el-menu  class="el-menu-admin" @open="handleOpen"
         @close="handleClose" background-color="#545c64" text-color="#fff"
         active-text-color="#ffd04b" :unique-opened='true' :collapse='isCollapse'
         :router='true'
@@ -39,7 +39,7 @@
           <span class="toggle-btn myicon myicon-menu" @click='isCollapse = !isCollapse'></span>
           <h2 class="system-title">电商后台管理系统</h2>
           <div class="welcome">
-            <span>你好:<i> admin</i></span>
+            <span>你好:<i v-text="myname"></i></span>
             <el-button type="text" @click='loginOut'>退出登录</el-button>
           </div>
         </el-header>
@@ -56,8 +56,12 @@
 export default {
   data () {
     return {
+      myname: '',
       isCollapse: false
     }
+  },
+  mounted () {
+    this.myname = localStorage.getItem('myname')
   },
   methods: {
     handleOpen (key, keyPath) {
@@ -71,10 +75,18 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(() => {
-        localStorage.removeItem('mytoken')
-        this.$router.push({path: '/login'})
       })
+        .then(() => {
+          localStorage.removeItem('mytoken')
+          this.$router.push({path: '/login'})
+        })
+        .catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消退出',
+            duration: 1500
+          })
+        })
     }
   }
 }

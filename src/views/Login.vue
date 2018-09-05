@@ -54,6 +54,7 @@ export default {
               // this.$store.dispatch('setusernameAction', res.data.username)
               // 将token值存储起来：使用localStorage
               localStorage.setItem('mytoken', res.data.token)
+              localStorage.setItem('myname', res.data.username)
               // 进行路由跳转
               this.$router.push({name: 'Home'})
             } else {

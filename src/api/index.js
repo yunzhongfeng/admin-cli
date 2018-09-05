@@ -26,3 +26,21 @@ export const getListData = pa => {
     return res.data
   })
 }
+// 新增用户-- 添加用户请求路径：users 请求方法：post
+export const addUser = pa => {
+  return axios.post('users', pa).then(res => {
+    return res.data
+  })
+}
+// 用户数据编辑 -- 请求路径：users/:id 请求方法：put
+export const editUser = pa => {
+  return axios.put(`users/${pa.id}`, pa).then(res => {
+    return res.data
+  })
+}
+// 用户数据删除 -- 请求路径：users/:id 请求方法：delete
+export const deleteUser = delid => {
+  return axios.delete(`users/${delid}`).then(res => {
+    return res.data
+  })
+}
