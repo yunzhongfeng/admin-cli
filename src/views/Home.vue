@@ -11,7 +11,7 @@
           <!-- 导航 1 -->
           <el-submenu index="1">
             <template slot="title">
-              <i class="el-icon-location"></i>
+              <i class="el-icon-setting"></i>
               <span>用户管理</span>
             </template>
             <!-- 子导航 1-->
@@ -27,9 +27,13 @@
               <span>权限管理</span>
             </template>
             <!-- 子导航 1-->
-              <el-menu-item index="2-1">
+              <el-menu-item index="roles">
                     <i class="el-icon-location"></i>
                     <span>角色列表</span>
+              </el-menu-item>
+              <el-menu-item index="right">
+                    <i class="el-icon-location"></i>
+                    <span>权限列表</span>
               </el-menu-item>
           </el-submenu>
         </el-menu>

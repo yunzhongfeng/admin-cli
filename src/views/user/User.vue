@@ -7,7 +7,7 @@
             <el-breadcrumb-item>用户列表</el-breadcrumb-item>
         </el-breadcrumb>
         <!-- 搜索框和添加用户按钮 -->
-        <div style="margin-top: 15px;">
+        <div style="margin-top: 15px;">  <!--      =>    =>   =>   =>   =>   =>   =>    =>         native :让组件中可以使用原生的事件,不加事件触发不了!!!           -->
             <el-input placeholder="请输入内容"  v-model='searchvalue' class="input-with-select search-input" @keydown.native.13="searchUserList" @blur="searchUserList">
                 <el-button slot="append" icon="el-icon-search" @click='searchUserList'></el-button>
             </el-input>
@@ -22,7 +22,7 @@
                 <el-table-column prop="mobile" label="电话"> </el-table-column>
                 <el-table-column  label="授权状态">
                    <template slot-scope="scope">
-                        <el-switch v-model="scope.row.mg_state" active-color="#13ce66" inactive-color="#ff4949"> </el-switch>
+                        <el-switch v-model="scope.row.mg_state" active-color="#13ce66" inactive-color="#ff4949" @change="changeUserState(scope.row)"> </el-switch>
                    </template>
                 </el-table-column>
                 <el-table-column label="操作">
@@ -34,7 +34,7 @@
                             <el-button type="primary" icon="el-icon-delete" plain @click="deleteUser(scope.row.id)"></el-button>
                         </el-tooltip>
                         <el-tooltip content="授权角色" placement="top">
-                            <el-button type="primary" icon="el-icon-success" plain></el-button>
+                            <el-button type="primary" icon="el-icon-success" plain @click="showgrantDoalog(scope.row)"></el-button>
                         </el-tooltip>
                   </template>
                </el-table-column>
@@ -84,11 +84,28 @@
             <el-button type="primary" @click="editUserSubmit('editform')">确 定</el-button>
           </div>
         </el-dialog>
+        <!-- 下面是分配角色权限的对话框,默认是隐藏的,当点击角色分配按钮时显示 -->
+        <el-dialog title="添加用户" :visible.sync="grantDialogFormVisible">
+          <el-form :model="grantform" :rules="rules" ref="grantform" label-width="100px">
+              <el-form-item label="用户名" prop='username'>
+                <el-input v-model="grantform.username" disabled="disabled" style="width:80px"></el-input>
+              </el-form-item>
+              <el-form-item label="角色">
+                  <el-select v-model="grantform.rid" placeholder="请选择">
+                    <el-option v-for="(value) in rolesList" :label="value.roleName" :value="value.id" :key="value.id"></el-option>
+                  </el-select>
+              </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="grantDialogFormVisible = false">取 消</el-button>
+            <el-button type="primary" @click="grantUserSubmit">确 定</el-button>
+          </div>
+        </el-dialog>
     </div>
 </template>
 
 <script>
-import { getListData, addUser, editUser, deleteUser } from '@/api/index.js'
+import { getListData, addUser, editUser, deleteUser, getRolesList, grantUser, changeuserState } from '@/api/index.js'
 export default {
   data () {
     return {
@@ -98,7 +115,9 @@ export default {
       searchvalue: '',
       addDialogFormVisible: false, // 添加用户的对话框状态
       editDialogFormVisible: false, // 编辑用户的对话框状态
+      grantDialogFormVisible: false, // 添加角色的对话框状态
       userList: [],
+      rolesList: [], // 添加角色的对话框下拉列表数据
       addform: {
         username: '',
         password: '',
@@ -110,6 +129,11 @@ export default {
         username: '',
         email: '',
         mobile: ''
+      },
+      grantform: {
+        username: '',
+        id: '', // 用户id
+        rid: ''// 当前用户所分配的角色id
       },
       rules: {
         username: [
@@ -197,10 +221,11 @@ export default {
                 })
                 this.initList() // 重新渲染页面数据
                 // 清空表单
-                this.addform.username = ''
-                this.addform.password = ''
-                this.addform.email = ''
-                this.addform.mobile = ''
+                this.$refs[addformName].resetFields()
+                // this.addform.username = ''
+                // this.addform.password = ''
+                // this.addform.email = ''
+                // this.addform.mobile = ''
                 this.addDialogFormVisible = false // 隐藏添加用户的对话框
               } else {
                 // 错误提示
@@ -257,18 +282,88 @@ export default {
           })
         }).catch(() => {
           this.$message({
-            duration: 1500,
+            duration: 1000,
             type: 'info',
             message: '已取消删除'
           })
         })
     },
-    // 5.分页事件：当每页显示的记录数设置变化的时候触发
+    // 5 显示授权角色的对话框
+    showgrantDoalog (row) {
+      // console.log(row)
+      this.grantDialogFormVisible = true
+      // 用户id
+      this.grantform.id = row.id
+      this.grantform.username = row.username
+      console.log(this.grantform)
+      getRolesList().then(res => {
+        console.log(res)
+        this.rolesList = res.data
+      })
+    },
+    // 5.1 添加授权角色
+    grantUserSubmit () {
+      // console.log(this.grantform)
+      if (!this.grantform.rid) {
+        // rid为空的话就进来,给出提示
+        this.$message({
+          duration: 2500,
+          type: 'warning',
+          message: '请先选择角色，否则无法提交'
+        })
+      }
+      // 下面就可以进行成功的逻辑了
+      // console.log(this.grantform)
+      grantUser({id: this.grantform.id, rid: this.grantform.rid})
+        .then(res => {
+          console.log(res)
+          if (res.meta.status === 200) {
+            // 授权成功
+            this.$message({
+              duration: 1500,
+              type: 'success',
+              message: res.meta.msg
+            })
+            this.grantDialogFormVisible = false
+          } else {
+            // 授权失败
+            this.$message({
+              duration: 2000,
+              type: 'error',
+              message: res.meta.msg
+            })
+          }
+        })
+    },
+    // 6. 切换用户状态
+    changeUserState (row) {
+      console.log(row)
+      changeuserState({uId: row.id, type: row.mg_state})
+        .then(res => {
+          console.log(res)
+          if (res.meta.status === 200) {
+            // 切换用户状态成功提示
+            this.$message({
+              duration: 1500,
+              message: res.meta.msg,
+              type: 'success'
+            })
+            this.initList() // 重新渲染页面数据
+          } else {
+            // 切换用户状态失败提示
+            this.$message({
+              message: res.meta.msg,
+              type: 'error'
+            })
+          }
+        })
+    },
+    // 7.分页事件：当每页显示的记录数设置变化的时候触发
     handleSizeChange (val) {
       this.pagesize = val
       this.initList()
     },
-    // 5.1.分页事件：当当前页码发生变化的时候触发
+    // 7.1.分页事件：当当前页码发生变化的时候触发
     handleCurrentChange (val) {
       this.pagenum = val
       this.initList()
