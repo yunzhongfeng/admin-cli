@@ -8,32 +8,16 @@
         active-text-color="#ffd04b" :unique-opened='true' :collapse='isCollapse'
         :router='true'
         >
-          <!-- 导航 1 -->
-          <el-submenu index="1">
+          <!-- 导航  -->
+          <el-submenu :index="item.id + ''" v-for='item in menuList' :key="item.id">
             <template slot="title">
               <i class="el-icon-setting"></i>
-              <span>用户管理</span>
+              <span>{{item.authName}}</span>
             </template>
-            <!-- 子导航 1-->
-              <el-menu-item index="user">
+            <!-- 子导航-->
+              <el-menu-item :index="'/'+ subitem.path" v-for='subitem in item.children' :key="subitem.id">
                     <i class="el-icon-location"></i>
-                    <span>用户列表</span>
-              </el-menu-item>
-          </el-submenu>
-          <!-- 导航 2 -->
-          <el-submenu index="2">
-            <template slot="title">
-              <i class="el-icon-menu"></i>
-              <span>权限管理</span>
-            </template>
-            <!-- 子导航 1-->
-              <el-menu-item index="roles">
-                    <i class="el-icon-location"></i>
-                    <span>角色列表</span>
-              </el-menu-item>
-              <el-menu-item index="right">
-                    <i class="el-icon-location"></i>
-                    <span>权限列表</span>
+                    <span>{{subitem.authName}}</span>
               </el-menu-item>
           </el-submenu>
         </el-menu>
@@ -43,7 +27,7 @@
           <span class="toggle-btn myicon myicon-menu" @click='isCollapse = !isCollapse'></span>
           <h2 class="system-title">电商后台管理系统</h2>
           <div class="welcome">
-            <span>你好:<i v-text="myname"></i></span>
+            <span>你好:<i> {{$store.state.username?$store.state.username:$store.getters.getUserName}}</i></span>
             <el-button type="text" @click='loginOut'>退出登录</el-button>
           </div>
         </el-header>
@@ -57,14 +41,20 @@
 </template>
 
 <script>
+import { getMenu } from '@/api/index.js'
 export default {
   data () {
     return {
       myname: '',
-      isCollapse: false
+      isCollapse: false,
+      menuList: []
     }
   },
   mounted () {
+    getMenu().then(res => {
+      this.menuList = res.data
+      // console.log(this.menuList)
+    })
     this.myname = localStorage.getItem('myname')
   },
   methods: {
@@ -81,7 +71,7 @@ export default {
         type: 'warning'
       })
         .then(() => {
-          localStorage.removeItem('mytoken')
+          // localStorage.removeItem('mytoken')
           this.$router.push({path: '/login'})
         })
         .catch(() => {

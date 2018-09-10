@@ -53,11 +53,11 @@
         </template>
         <!-- 下面是添加角色的对话框,默认是隐藏的,当点击添加按钮时显示 -->
         <el-dialog title="添加角色" :visible.sync="addDialogFormVisible">
-          <el-form :model="addform" :rules="rules" label-width="100px">
+          <el-form :model="addform" :rules="rules" ref="addRoleForm" label-width="100px">
             <el-form-item label="角色名称" prop="roleName">
               <el-input v-model="addform.roleName"></el-input>
             </el-form-item>
-            <el-form-item label="角色描述" prop="roleDesc">
+            <el-form-item label="角色描述">
               <el-input v-model="addform.roleDesc" ></el-input>
             </el-form-item>
           </el-form>
@@ -112,9 +112,6 @@ export default {
       rules: {
         roleName: [
           { required: true, message: '请输入授权角色名字', trigger: 'blur' }
-        ],
-        roleDesc: [
-          { required: true, message: '授权角色名字描述不能为空', trigger: 'blur' }
         ]
       }
     }
@@ -207,6 +204,8 @@ export default {
             message: res.meta.msg,
             type: 'success'
           })
+          this.addform.roleName = ''
+          this.addform.roleDesc = ''
           this.addDialogFormVisible = false
           this.initList()
         } else {
@@ -216,6 +215,8 @@ export default {
             message: '添加角色失败',
             type: 'warning'
           })
+          this.addform.roleName = ''
+          this.addform.roleDesc = ''
         }
       })
     },

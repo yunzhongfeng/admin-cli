@@ -92,3 +92,49 @@ export const grantroleright = (roleId, rids) => {
     return res.data
   })
 }
+
+// getAllRightsList 获取左侧菜单权限-- 请求路径：请求路径：menus 请求方法：get
+export const getMenu = () => {
+  return axios.get(`menus`).then(res => {
+    return res.data
+  })
+}
+// 获取商品列表数据 --(商品管理中的)请求路径：goods 请求方法：get
+export const getGoodsData = pa => {
+  return axios.get('goods', {params: pa}).then(res => {
+    return res.data
+  })
+}
+// 删除--(商品管理中的)单个商品 -- 请求路径：请求路径：goods/:id 请求方法：delete
+export const deleteGoodById = (goodsid) => {
+  return axios.delete(`goods/${goodsid}`).then(res => {
+    return res.data
+  })
+}
+
+// 获取商品列表数据 --(商品分类管理中的)categories 请求方法：get
+export const getCategorieAll = type => {
+  return axios.get(`categories`, {params: {type: type}}).then(res => {
+    return res.data
+  })
+}
+
+// 添加商品 --请求路径：categories 请求方法：post
+export const addCategory = pa => {
+  return axios.post('categories', pa).then(res => {
+    return res.data
+  })
+}
+//  数据统计基于类型统计（饼图）请求路径：reports/:type 请求方法：get
+export const getReportsData = type => {
+  return axios.get(`reports/${type}`).then(res => {
+    return res.data
+  })
+}
+
+// 1.7.2. 添加商品 --请求路径：goods 请求方法：post
+export const addGoods = pa => {
+  return axios.post('goods', pa).then(res => {
+    return res.data
+  })
+}

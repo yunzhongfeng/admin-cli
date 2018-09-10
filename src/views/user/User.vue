@@ -49,7 +49,7 @@
         <el-dialog title="添加用户" :visible.sync="addDialogFormVisible">
           <el-form :model="addform" :rules="rules" ref="addform" label-width="100px">
             <el-form-item label="用户名" prop='username'>
-              <el-input v-model="addform.username"></el-input>
+              <el-input v-myfocus v-model="addform.username"></el-input>
             </el-form-item>
             <el-form-item label="密码"  prop='password'>
               <el-input type="password" v-model="addform.password" ></el-input>
@@ -153,6 +153,15 @@ export default {
       }
     }
   },
+  // 创建局部自定义指令--只有当前组件内部能够使用
+  directives: {
+    myfocus: {
+      inserted (el, binding) {
+        el.children[0].focus()
+        console.log(el.children[0])
+      }
+    }
+  },
   mounted () {
     // 在页面加载完毕就立即加载数据
     this.handleSizeChange(this.pagesize)
@@ -202,6 +211,10 @@ export default {
     },
     showAddDialog () { // 2点击添加按钮时显示添加用户的对话框
       this.addDialogFormVisible = true
+      this.addform.username = ''
+      this.addform.password = ''
+      this.addform.email = ''
+      this.addform.mobile = ''
     },
     // 2.1 实现用户数据添加
     addUserSubmit (addformName) {
